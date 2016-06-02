@@ -1653,6 +1653,7 @@ var Pontoon = (function (my) {
           if (syncLocalStorage) {
             self.syncLocalStorageOnServer();
           }
+          self.dispatchDemoEvent();
         },
         error: function(error) {
           if (error.status === 0) {
@@ -1672,6 +1673,36 @@ var Pontoon = (function (my) {
             self.endLoader('Oops, something went wrong.', 'error');
             self.approvedNotSubmitted = null;
           }
+        }
+      });
+    },
+
+    dispatchDemoEvent: function() {
+      var self = this;
+
+      $.ajax({
+        url: '/serialize/',
+        type: 'POST',
+        data: {
+          csrfmiddlewaretoken: $('#server').data('csrf'),
+          slug: self.project.slug,
+          code: self.locale.code,
+          part: self.part
+        },
+        success: function(messages) {
+          var event = new CustomEvent('mozL20nDemo', {
+            bubbles: true,
+            detail: {
+              action: 'update',
+              data: {
+                messages: messages
+              }
+            }
+          });
+          document.dispatchEvent(event);
+        },
+        error: function(error) {
+          console.error(error);
         }
       });
     },

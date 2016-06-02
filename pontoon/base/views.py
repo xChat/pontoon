@@ -1128,6 +1128,24 @@ def download(request):
 
     return response
 
+@require_POST
+@transaction.atomic
+def serialize(request):
+    """Serialize translated resource."""
+    try:
+        slug = request.POST['slug']
+        code = request.POST['code']
+        part = request.POST['part']
+    except MultiValueDictKeyError:
+        raise Http404
+
+    content, _ = utils.get_download_content(slug, code, part, useZip = False)
+
+    if not content:
+        raise Http404
+
+    return HttpResponse(content, content_type="text/plain")
+
 
 @login_required(redirect_field_name='', login_url='/403')
 @require_POST

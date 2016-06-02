@@ -146,6 +146,8 @@ urlpatterns = [
         name='pontoon.other_locales'),
     url(r'^download/', views.download,
         name='pontoon.download'),
+    url(r'^serialize/', views.serialize,
+        name='pontoon.serialize'),
     url(r'^upload/', views.upload,
         name='pontoon.upload'),
     url(r'^save-user-name/', views.save_user_name,

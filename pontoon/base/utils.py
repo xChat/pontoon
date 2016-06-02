@@ -343,7 +343,7 @@ def _get_relative_path_from_part(slug, part):
         return part
 
 
-def get_download_content(slug, code, part):
+def get_download_content(slug, code, part, useZip = True):
     """
     Get content of the file to be downloaded.
 
@@ -360,7 +360,7 @@ def get_download_content(slug, code, part):
     locale = get_object_or_404(Locale, code__iexact=code)
 
     # Download a ZIP of all files if project has > 1 and < 10 resources
-    isZipable = 1 < project.resources.count() < 10
+    isZipable = useZip and 1 < project.resources.count() < 10
     if isZipable:
         resources = project.resources.all()
         s = StringIO.StringIO()
