@@ -1653,7 +1653,6 @@ var Pontoon = (function (my) {
           if (syncLocalStorage) {
             self.syncLocalStorageOnServer();
           }
-          self.dispatchDemoEvent();
         },
         error: function(error) {
           if (error.status === 0) {
@@ -1676,37 +1675,6 @@ var Pontoon = (function (my) {
         }
       });
     },
-
-    dispatchDemoEvent: function() {
-      var self = this;
-
-      $.ajax({
-        url: '/serialize/',
-        type: 'GET',
-        data: {
-          csrfmiddlewaretoken: $('#server').data('csrf'),
-          slug: self.project.slug,
-          code: self.locale.code,
-          part: self.part
-        },
-        success: function(messages) {
-          var event = new CustomEvent('mozL20nDemo', {
-            bubbles: true,
-            detail: {
-              action: 'update',
-              data: {
-                messages: messages
-              }
-            }
-          });
-          document.dispatchEvent(event);
-        },
-        error: function(error) {
-          console.error(error);
-        }
-      });
-    },
-
 
     /*
      * Update part selector
@@ -2655,6 +2623,8 @@ var Pontoon = (function (my) {
       } else {
         self.withoutInPlace();
       }
+
+      L20nDemo.init();
     },
 
 
@@ -3001,6 +2971,89 @@ var Pontoon = (function (my) {
     }
   });
 }(Pontoon || {}));
+
+/* L20n Live Updates Demo for MozLondon */
+var L20nDemo = (function(pontoon) {
+
+  function emit(action, data) {
+    document.dispatchEvent(
+      new CustomEvent('mozL20nDemo', {
+        bubbles: true,
+        detail: {
+          action: action,
+          data: data || {},
+        }
+      })
+    );
+  }
+
+  function debounce(fn) {
+    var timer = null;
+    return function(e) {
+      clearTimeout(timer);
+      timer = setTimeout(function() {
+        fn(e);
+      }, 250);
+    };
+  }
+
+  function attachEditorHandlers() {
+    var editor = $('#translation');
+
+      // wait for 250 ms of idle time to call the event handler
+    var handler = debounce(function(e) {
+      var entity = pontoon.getEntityById(pontoon.state.entity);
+        // XXX serialize this properly with traits using FTLSerializer
+      var message = entity.key + ' = ' + editor.val();
+      emit('update', { messages: message });
+    });
+
+    // XXX this should also bind the 'change' event and possibly other event 
+    // from the editor, e.g. when a placeable is clicked
+    editor.unbind('keydown.l20ndemo').bind('keydown.l20ndemo', handler);
+  }
+
+  function sendResource() {
+    $.ajax({
+      url: '/serialize/',
+      type: 'GET',
+      data: {
+        csrfmiddlewaretoken: $('#server').data('csrf'),
+        slug: pontoon.project.slug,
+        code: pontoon.locale.code,
+        part: pontoon.part
+      },
+      success: function(messages) {
+        emit('create', { messages: messages });
+      },
+      error: function(error) {
+        console.error(error);
+      }
+    });
+  }
+
+  return {
+
+    init: function() {
+      window.addEventListener('mozL20nDemoResponse', this);
+      emit('helo');
+    },
+
+    handleEvent: function(e) {
+      switch(e.detail.action) {
+        case 'ehlo': {
+          sendResource();
+          break;
+        }
+        case 'created': {
+          attachEditorHandlers();
+          break;
+        }
+      }
+    },
+
+  };
+})(Pontoon);
 
 /* Main code */
 window.onpopstate = function(e) {
