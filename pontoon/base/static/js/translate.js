@@ -1682,7 +1682,7 @@ var Pontoon = (function (my) {
 
       $.ajax({
         url: '/serialize/',
-        type: 'POST',
+        type: 'GET',
         data: {
           csrfmiddlewaretoken: $('#server').data('csrf'),
           slug: self.project.slug,

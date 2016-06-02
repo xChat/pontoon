@@ -1128,14 +1128,14 @@ def download(request):
 
     return response
 
-@require_POST
+@require_AJAX
 @transaction.atomic
 def serialize(request):
     """Serialize translated resource."""
     try:
-        slug = request.POST['slug']
-        code = request.POST['code']
-        part = request.POST['part']
+        slug = request.GET['slug']
+        code = request.GET['code']
+        part = request.GET['part']
     except MultiValueDictKeyError:
         raise Http404
 
