@@ -10,11 +10,16 @@ This guide assumes you have already installed and set up the following:
 1. Git_
 2. `Python 2.7`_, pip_, and virtualenv_
 3. `Node.js`_ and npm_
-4. `Postgres 9.4`_
+4. `Postgres 9.4 or 9.5`_
 
 These docs assume a Unix-like operating system, although the site should, in
 theory, run on Windows as well. All the example commands given below are
-intended to be run in a terminal.
+intended to be run in a terminal.  If you're on Ubuntu 16.04, you can install
+all the prerequisites using the following command:
+
+   .. code-block:: bash
+
+      sudo apt install git python-pip nodejs-legacy npm postgresql postgresql-server-dev-9.5 libxml2-dev libxslt1-dev python-dev libmemcached-dev
 
 .. _Git: https://git-scm.com/
 .. _Python 2.7: https://www.python.org/
@@ -22,7 +27,7 @@ intended to be run in a terminal.
 .. _virtualenv: https://virtualenv.pypa.io/en/latest/
 .. _Node.js: https://nodejs.org/
 .. _npm: https://www.npmjs.com/
-.. _Postgres 9.4: http://www.postgresql.org/
+.. _Postgres 9.4 or 9.5: http://www.postgresql.org/
 
 Installation
 ------------
@@ -50,7 +55,7 @@ Installation
 
    .. code-block:: bash
 
-      pip install --require-hashes -r requirements.txt
+      pip install --require-hashes -r requirements-dev.txt
 
 4. Create a ``.env`` file at the root of the repository to configure the
    settings for your development instance. It should look something like this:
