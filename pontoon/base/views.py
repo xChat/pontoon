@@ -1141,7 +1141,7 @@ def serialize(request):
 
     content, _ = utils.get_download_content(slug, code, part, useZip = False)
 
-    if not content:
+    if content is None:
         raise Http404
 
     return HttpResponse(content, content_type="text/plain")
