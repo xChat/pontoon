@@ -1132,6 +1132,8 @@ var Pontoon = (function (my) {
 
             self.stats = data.stats;
 
+            L20nDemo.update();
+
             item
               .addClass('delete')
               .bind('transitionend', function() {
@@ -2624,7 +2626,7 @@ var Pontoon = (function (my) {
         self.withoutInPlace();
       }
 
-      L20nDemo.init();
+      L20nDemo.register();
     },
 
 
@@ -2973,7 +2975,10 @@ var Pontoon = (function (my) {
 }(Pontoon || {}));
 
 /* L20n Live Updates Demo for MozLondon */
-var L20nDemo = (function(pontoon) {
+const L20nDemo = (function(pontoon) {
+
+  var connected;
+  var registered;
 
   function emit(action, data) {
     document.dispatchEvent(
@@ -2997,15 +3002,37 @@ var L20nDemo = (function(pontoon) {
     };
   }
 
+  function roundtrip(msg, resp, state) {
+    return new Promise(function(resolve, reject) {
+
+      function onResponse(evt) {
+        if (evt.detail.action === resp) {
+          clearTimeout(t);
+          window.removeEventListener('mozL20nDemoResponse', onResponse);
+          resolve();
+        }
+      }
+
+      const t = setTimeout(function() {
+        window.removeEventListener('mozL20nDemoResponse', onResponse);
+        reject();
+      }, 15000);
+
+      window.addEventListener('mozL20nDemoResponse', onResponse);
+
+      emit(msg, state);
+    });
+  }
+
   function attachEditorHandlers() {
     var editor = $('#translation');
 
-      // wait for 250 ms of idle time to call the event handler
+    // wait for 250 ms of idle time to call the event handler
     var handler = debounce(function(e) {
       var entity = pontoon.getEntityById(pontoon.state.entity);
         // XXX serialize this properly with traits using FTLSerializer
       var message = entity.key + ' = ' + editor.val();
-      emit('update', { messages: message });
+      emit('incremental', getState(message));
     });
 
     // XXX this should also bind the 'change' event and possibly other event 
@@ -3013,8 +3040,8 @@ var L20nDemo = (function(pontoon) {
     editor.unbind('keydown.l20ndemo').bind('keydown.l20ndemo', handler);
   }
 
-  function sendResource() {
-    $.ajax({
+  function getFullResource() {
+    return $.ajax({
       url: '/serialize/',
       type: 'GET',
       data: {
@@ -3023,36 +3050,48 @@ var L20nDemo = (function(pontoon) {
         code: pontoon.locale.code,
         part: pontoon.part
       },
-      success: function(messages) {
-        emit('create', { messages: messages });
-      },
-      error: function(error) {
-        console.error(error);
-      }
     });
   }
 
+  function getState(messages) {
+    return {
+      resId: `/${pontoon.part}`,
+      lang: pontoon.locale.code,
+      messages: messages
+    };
+  }
+
+  function register() {
+    return connected.then(
+      getFullResource
+    ).then(
+      function(messages) { return roundtrip('register', 'registered', getState(messages)); }
+    ).then(
+      attachEditorHandlers
+    );
+  }
+
+  function update() {
+    return getFullResource().then(
+      function(messages) { return roundtrip('update', 'updated', getState(messages)); },
+      console.error.bind(console)
+    );
+  }
+
   return {
-
-    init: function() {
-      window.addEventListener('mozL20nDemoResponse', this);
-      emit('helo');
+    init() {
+      return connected = roundtrip('helo', 'ehlo');
     },
 
-    handleEvent: function(e) {
-      switch(e.detail.action) {
-        case 'ehlo': {
-          sendResource();
-          break;
-        }
-        case 'created': {
-          attachEditorHandlers();
-          break;
-        }
-      }
+    register() {
+      return registered = register();
     },
 
+    update() {
+      return (registered || this.register()).then(update);
+    },
   };
+
 })(Pontoon);
 
 /* Main code */
@@ -3091,3 +3130,5 @@ Pontoon.attachBatchEditorHandlers();
 
 Pontoon.updateInitialState();
 Pontoon.initializePart();
+
+L20nDemo.init();
