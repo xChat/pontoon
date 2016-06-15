@@ -2975,10 +2975,10 @@ var Pontoon = (function (my) {
 }(Pontoon || {}));
 
 /* L20n Live Updates Demo for MozLondon */
-const L20nDemo = (function(pontoon) {
+const L20nDemo = (function(_pontoon) {
 
-  var connected;
-  var registered;
+  var _connected;
+  var _registered;
 
   function emit(action, data) {
     document.dispatchEvent(
@@ -3029,7 +3029,7 @@ const L20nDemo = (function(pontoon) {
 
     // wait for 250 ms of idle time to call the event handler
     var handler = debounce(function(e) {
-      var entity = pontoon.getEntityById(pontoon.state.entity);
+      var entity = _pontoon.getEntityById(_pontoon.state.entity);
         // XXX serialize this properly with traits using FTLSerializer
       var message = entity.key + ' = ' + editor.val();
       emit('incremental', getState(message));
@@ -3046,23 +3046,23 @@ const L20nDemo = (function(pontoon) {
       type: 'GET',
       data: {
         csrfmiddlewaretoken: $('#server').data('csrf'),
-        slug: pontoon.project.slug,
-        code: pontoon.locale.code,
-        part: pontoon.part
+        slug: _pontoon.project.slug,
+        code: _pontoon.locale.code,
+        part: _pontoon.part
       },
     });
   }
 
   function getState(messages) {
     return {
-      resId: `/${pontoon.part}`,
-      lang: pontoon.locale.code,
+      resId: `/${_pontoon.part}`,
+      lang: _pontoon.locale.code,
       messages: messages
     };
   }
 
   function register() {
-    return connected.then(
+    return _connected.then(
       getFullResource
     ).then(
       function(messages) { return roundtrip('register', 'registered', getState(messages)); }
@@ -3080,15 +3080,15 @@ const L20nDemo = (function(pontoon) {
 
   return {
     init() {
-      return connected = roundtrip('helo', 'ehlo');
+      return _connected = roundtrip('helo', 'ehlo');
     },
 
     register() {
-      return registered = register();
+      return _registered = register();
     },
 
     update() {
-      return (registered || this.register()).then(update);
+      return (_registered || this.register()).then(update);
     },
   };
 
