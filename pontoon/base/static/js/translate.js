@@ -2980,12 +2980,13 @@ const L20nDemo = (function(_pontoon) {
   var _connected;
   var _registered;
 
-  function emit(action, data) {
+  function emit(action, requestId, data) {
     document.dispatchEvent(
       new CustomEvent('mozL20nDemo', {
         bubbles: true,
         detail: {
           action: action,
+          requestId: requestId,
           data: data || {},
         }
       })
@@ -3002,11 +3003,12 @@ const L20nDemo = (function(_pontoon) {
     };
   }
 
-  function roundtrip(msg, resp, state) {
-    return new Promise(function(resolve, reject) {
+  function roundtrip(msg, state) {
+    const reqId = Math.random().toString(36).replace(/[^a-z]+/g, '');
 
+    return new Promise(function(resolve, reject) {
       function onResponse(evt) {
-        if (evt.detail.action === resp) {
+        if (evt.detail.requestId === reqId) {
           clearTimeout(t);
           window.removeEventListener('mozL20nDemoResponse', onResponse);
           resolve();
@@ -3020,7 +3022,7 @@ const L20nDemo = (function(_pontoon) {
 
       window.addEventListener('mozL20nDemoResponse', onResponse);
 
-      emit(msg, state);
+      emit(msg, reqId, state);
     });
   }
 
@@ -3032,7 +3034,7 @@ const L20nDemo = (function(_pontoon) {
       var entity = _pontoon.getEntityById(_pontoon.state.entity);
         // XXX serialize this properly with traits using FTLSerializer
       var message = entity.key + ' = ' + editor.val();
-      emit('incremental', getState(message));
+      emit('incremental', null, getState(message));
     });
 
     // XXX this should also bind the 'change' event and possibly other event 
@@ -3065,7 +3067,7 @@ const L20nDemo = (function(_pontoon) {
     return _connected.then(
       getFullResource
     ).then(
-      function(messages) { return roundtrip('register', 'registered', getState(messages)); }
+      function(messages) { return roundtrip('register', getState(messages)); }
     ).then(
       attachEditorHandlers
     );
@@ -3073,14 +3075,14 @@ const L20nDemo = (function(_pontoon) {
 
   function update() {
     return getFullResource().then(
-      function(messages) { return roundtrip('update', 'updated', getState(messages)); },
+      function(messages) { return roundtrip('update', getState(messages)); },
       console.error.bind(console)
     );
   }
 
   return {
     init() {
-      return _connected = roundtrip('helo', 'ehlo');
+      return _connected = roundtrip('helo');
     },
 
     register() {
