@@ -1071,7 +1071,8 @@ body > header aside p {
   visibility: visible;
 }
 
-#editor textarea {
+#editor #translation,
+#editor #advanced-textarea {
   background: #FFFFFF;
   display: block;
   font-size: 13px;

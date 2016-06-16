@@ -1020,6 +1020,23 @@ var Pontoon = (function (my) {
         }
       });
 
+      // Advanced features
+      $('#advanced .gender').click(function() {
+        $('#translation').hide();
+        $('#advanced-textarea textarea').each(function() {
+          $(this).val($('#translation').val());
+        });
+        $('#advanced-textarea').show();
+      });
+      $('#advanced .source').click(function() {
+        $('#translation').show();
+        $('#translation').val('\n' +
+          '*[male]' + $('#advanced-textarea .male textarea').val() + '\n' +
+          '[female]' + $('#advanced-textarea .female textarea').val()
+        );
+        $('#advanced-textarea').hide();
+      });
+
       // Copy source to translation
       $('#copy').click(function (e) {
         e.preventDefault();
