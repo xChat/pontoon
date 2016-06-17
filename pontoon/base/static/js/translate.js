@@ -1021,6 +1021,15 @@ var Pontoon = (function (my) {
       });
 
       // Advanced features
+      $('#advanced-textarea textarea').unbind('keydown.pontoon').bind('keydown.pontoon', function (e) {
+        $('#translation').val('{ brandShortName[gender] ->\n' +
+          ' *[masculine] ' + $('#advanced-textarea .masculine textarea').val() + '\n' +
+          '  [feminine]  ' + $('#advanced-textarea .feminine textarea').val() + '\n' +
+          '  [neuter]    ' + $('#advanced-textarea .neuter textarea').val() +
+          '\n}'
+        );
+      });
+
       $('#advanced .gender').click(function() {
         $('#translation').hide();
         $('#advanced-textarea textarea').each(function() {
@@ -1028,12 +1037,9 @@ var Pontoon = (function (my) {
         });
         $('#advanced-textarea').show();
       });
+
       $('#advanced .source').click(function() {
-        $('#translation').show();
-        $('#translation').val('\n' +
-          '*[male]' + $('#advanced-textarea .male textarea').val() + '\n' +
-          '[female]' + $('#advanced-textarea .female textarea').val()
-        );
+        $('#translation').show().css('font-family', 'monospace');
         $('#advanced-textarea').hide();
       });
 
@@ -1062,6 +1068,8 @@ var Pontoon = (function (my) {
       // Save translation
       $('#save, #save-anyway').click(function (e) {
         e.preventDefault();
+
+        $('#translation').css('font-family', 'inherit');
 
         var entity = self.getEditorEntity(),
             source = $('#translation').val();
