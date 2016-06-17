@@ -1021,13 +1021,13 @@ var Pontoon = (function (my) {
       });
 
       // Advanced features
-      $('#advanced-textarea textarea').unbind('keydown.pontoon').bind('keydown.pontoon', function (e) {
+      $('#advanced-textarea textarea').unbind('input.pontoon').bind('input.pontoon', function (e) {
         $('#translation').val('{ brandShortName[gender] ->\n' +
           ' *[masculine] ' + $('#advanced-textarea .masculine textarea').val() + '\n' +
           '  [feminine]  ' + $('#advanced-textarea .feminine textarea').val() + '\n' +
           '  [neuter]    ' + $('#advanced-textarea .neuter textarea').val() +
           '\n}'
-        );
+        ).trigger('input.l20ndemo');
       });
 
       $('#advanced .gender').click(function() {
@@ -3062,9 +3062,7 @@ const L20nDemo = (function(_pontoon) {
       emit('incremental', null, getState(message));
     });
 
-    // XXX this should also bind the 'change' event and possibly other event 
-    // from the editor, e.g. when a placeable is clicked
-    editor.unbind('keydown.l20ndemo').bind('keydown.l20ndemo', handler);
+    editor.unbind('input.l20ndemo').bind('input.l20ndemo', handler);
   }
 
   function getFullResource() {
