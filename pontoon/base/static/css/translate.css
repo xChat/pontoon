@@ -1469,7 +1469,7 @@ body > header aside p {
 }
 
 #editor #translation {
-  height: 20%;
+  height: 15%;
   min-height: 100px;
 }
 
@@ -1488,7 +1488,7 @@ body > header aside p {
 .ftl-area {
   background: #272A2F;
   display: none;
-  height: 20%;
+  height: 15%;
   line-height: 22px;
   min-height: 100px;
   padding: 10px;
@@ -1935,7 +1935,7 @@ body > header aside p {
 
 #helpers {
   background: #3F4752;
-  height: calc(55% - 104px);
+  height: calc(60% - 104px);
   position: relative;
 }
 
@@ -1984,6 +1984,11 @@ body > header aside p {
   padding-left: 10px;
   padding-right: 10px;
   transition: all 0.1s ease-out;
+}
+
+#helpers > section.history ul li {
+  padding-bottom: 15px;
+  padding-top: 15px;
 }
 
 #helpers > section ul li:not(.disabled):hover,
@@ -2243,4 +2248,8 @@ body > header aside p {
 
 #third-column #helpers {
   height: 100%;
+}
+
+#third-column #helpers nav {
+  line-height: 23px;
 }
