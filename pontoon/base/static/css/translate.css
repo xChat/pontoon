@@ -572,6 +572,7 @@ body > header aside p {
 }
 
 #sidebar.advanced {
+  border-right: none;
   width: 700px;
 }
 
@@ -618,6 +619,10 @@ body > header aside p {
 }
 
 .advanced #entitylist,
+.advanced #third-column {
+  width: 25%;
+}
+
 .advanced #editor {
   width: 50%;
 }
@@ -1248,7 +1253,7 @@ body > header aside p {
 
 .advanced #editor {
   border-left: 1px solid #5E6475;
-  left: 50%;
+  left: 25%;
 
   -moz-box-sizing: border-box;
   box-sizing: border-box;
@@ -2205,4 +2210,18 @@ body > header aside p {
   float: none;
   margin-bottom: 10px;
   padding: 15px 0 5px;
+}
+
+
+
+
+
+/* THIRD COLUMN */
+
+#third-column {
+  border-left: 1px solid #5E6475;
+  right: 0;
+  height: 100%;
+  position: absolute;
+  width: 100%;
 }
