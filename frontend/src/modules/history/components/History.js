@@ -11,7 +11,7 @@ import * as plural from 'core/plural';
 
 import Translation from './Translation';
 import { actions, NAME } from '..';
-import type { HistoryState } from '../reducer';
+import type { DBTranslation, HistoryState } from '../reducer';
 
 import type { Navigation } from 'core/navigation';
 
@@ -58,6 +58,17 @@ export class HistoryBase extends React.Component<InternalProps> {
         }
     }
 
+    updateTranslationStatus = (translation: DBTranslation, change: string) => {
+        const { parameters, pluralForm, dispatch } = this.props;
+        dispatch(actions.updateStatus(
+            change,
+            parameters.entity,
+            pluralForm,
+            translation.pk,
+            parameters.resource
+        ));
+    }
+
     renderNoResults() {
         return <section className="history">
             <Localized id="history-history-no-translations">
@@ -80,7 +91,11 @@ export class HistoryBase extends React.Component<InternalProps> {
         return <section className="history">
             <ul>
                 { history.translations.map((translation, key) => {
-                    return <Translation translation={ translation } key={ key } />;
+                    return <Translation
+                        translation={ translation }
+                        updateTranslationStatus={ this.updateTranslationStatus }
+                        key={ key }
+                    />;
                 }) }
             </ul>
         </section>;
