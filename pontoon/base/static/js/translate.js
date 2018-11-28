@@ -82,6 +82,7 @@ var Pontoon = (function (my) {
             translationString +
           '</span>' +
         '</p>' +
+        '<span class="' + (entity.has_comments ? 'has ' : '') + 'comments far fa-comment fa-lg"></span>' +
         '<span class="arrow fa fa-chevron-right fa-lg"></span>' +
         '</li>', self.app.win);
       li[0].entity = entity;
@@ -363,6 +364,17 @@ var Pontoon = (function (my) {
       });
 
       self.NProgressBind();
+    },
+
+
+    /*
+     * Update comment icon in the sidebar
+     */
+    updateCommentsInSidebar: function (comment) {
+      var entity = this.getEditorEntity();
+      var commentCount = $('#helpers .comments ul .comment').length;
+
+      entity.ui.find('.comments').toggleClass('has', commentCount > 0);
     },
 
 
@@ -1534,7 +1546,8 @@ var Pontoon = (function (my) {
       var self = this;
 
       function isExtraFilter(el) {
-        return el.hasClass('untranslated') ||
+        return el.hasClass('comments') ||
+               el.hasClass('untranslated') ||
                el.hasClass('unchanged') ||
                el.hasClass('rejected');
       }
@@ -2415,6 +2428,7 @@ var Pontoon = (function (my) {
           success: function(data) {
             self.endLoader('Comment sent.');
             self.appendComment(data);
+            self.updateCommentsInSidebar();
             $('#helpers .comments time').timeago();
             $('#comment').val('');
           },
