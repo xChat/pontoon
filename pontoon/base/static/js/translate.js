@@ -82,7 +82,7 @@ var Pontoon = (function (my) {
             translationString +
           '</span>' +
         '</p>' +
-        '<span class="' + (entity.has_comments ? 'has ' : '') + 'comments far fa-comment fa-lg"></span>' +
+        '<span class="' + (entity.comments.length ? 'has ' : '') + 'comments far fa-comment fa-lg"></span>' +
         '<span class="arrow fa fa-chevron-right fa-lg"></span>' +
         '</li>', self.app.win);
       li[0].entity = entity;
@@ -370,11 +370,10 @@ var Pontoon = (function (my) {
     /*
      * Update comment icon in the sidebar
      */
-    updateCommentsInSidebar: function (comment) {
+    updateCommentsInSidebar: function () {
       var entity = this.getEditorEntity();
-      var commentCount = $('#helpers .comments ul .comment').length;
 
-      entity.ui.find('.comments').toggleClass('has', commentCount > 0);
+      entity.ui.find('.comments').toggleClass('has', entity.comments.length > 0);
     },
 
 
@@ -408,46 +407,20 @@ var Pontoon = (function (my) {
      * Get entity and translation comments
      */
     getComments: function (entity) {
-      var self = this,
-          list = $('#helpers .comments ul').empty(),
-          tab = $('#helpers a[href="#comments"]'),
-          count = '';
-
-      self.NProgressUnbind();
-
-      if (self.XHRgetComments) {
-        self.XHRgetComments.abort();
-      }
+      var self = this;
+      var list = $('#helpers .comments ul').empty();
+      var tab = $('#helpers a[href="#comments"]');
+      var count = '';
 
       $('#comment').val('');
 
-      self.XHRgetComments = $.ajax({
-        url: '/get-comments/',
-        data: {
-          entity: entity.pk,
-          locale: self.locale.code,
-        },
-        success: function(data) {
-          if (data.length) {
-            $.each(data, function() {
-              self.appendComment(this);
-            });
-
-            count = data.length;
-            $('#helpers .comments time').timeago();
-          }
-        },
-        error: function(error) {
-          if (error.status === 0 && error.statusText !== 'abort') {
-            self.noConnectionError(list);
-          }
-        },
-        complete: function() {
-          tab.find('.count').html(count).toggle(count !== '');
-        }
+      $.each(entity.comments, function() {
+        self.appendComment(this);
       });
 
-      self.NProgressBind();
+      count = entity.comments.length;
+      $('#helpers .comments time').timeago();
+      tab.find('.count').html(count).toggle(count !== '');
     },
 
 
@@ -2431,6 +2404,7 @@ var Pontoon = (function (my) {
             content: $('#comment').val(),
           },
           success: function(data) {
+            entity.comments.push(data);
             self.endLoader('Comment sent.');
             self.appendComment(data);
             self.updateCommentsInSidebar();
@@ -2454,14 +2428,19 @@ var Pontoon = (function (my) {
         }
 
         var comment = $(this).parents('.comment');
+        var id = comment.data('id');
+        var entity = self.getEditorEntity();
         self.XHRdeleteComment = $.ajax({
           url: '/delete-comment/',
           type: 'POST',
           data: {
             csrfmiddlewaretoken: $('#server').data('csrf'),
-            comment: comment.data('id'),
+            comment: id,
           },
           success: function(data) {
+            entity.comments = entity.comments.filter(function(item) {
+              return item.pk !== id;
+            });
             self.endLoader('Comment removed.');
             comment.remove();
             self.updateCommentsInSidebar();
