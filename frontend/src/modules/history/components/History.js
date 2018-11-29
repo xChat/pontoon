@@ -8,6 +8,8 @@ import './History.css';
 
 import { selectors as navSelectors } from 'core/navigation';
 import * as plural from 'core/plural';
+import { NAME as USER_NAME } from 'core/user';
+import type { UserState } from 'core/user';
 
 import Translation from './Translation';
 import { actions, NAME } from '..';
@@ -20,6 +22,7 @@ type Props = {|
     history: HistoryState,
     parameters: Navigation,
     pluralForm: number,
+    user: UserState,
 |};
 
 type InternalProps = {|
@@ -80,7 +83,7 @@ export class HistoryBase extends React.Component<InternalProps> {
     }
 
     render() {
-        const { history } = this.props;
+        const { history, parameters, user } = this.props;
 
         if (!history.translations.length) {
             if (history.fetching) {
@@ -90,11 +93,18 @@ export class HistoryBase extends React.Component<InternalProps> {
             return this.renderNoResults();
         }
 
+        const canReview = (
+            user.translatorForLocales &&
+            user.translatorForLocales.includes(parameters.locale)
+        );
+
         return <section className="history">
             <ul>
                 { history.translations.map((translation, key) => {
                     return <Translation
                         translation={ translation }
+                        canReview={ canReview }
+                        user={ user }
                         updateTranslationStatus={ this.updateTranslationStatus }
                         key={ key }
                     />;
@@ -110,6 +120,7 @@ const mapStateToProps = (state: Object): Props => {
         history: state[NAME],
         parameters: navSelectors.getNavigation(state),
         pluralForm: plural.selectors.getPluralForm(state),
+        user: state[USER_NAME],
     };
 };
 
