@@ -38,6 +38,7 @@ export class HistoryBase extends React.Component<InternalProps> {
 
         // This is a newly selected entity, remove the previous history
         // then fetch the history of the new entity.
+        dispatch(actions.reset());
         dispatch(actions.get(
             parameters.entity,
             parameters.locale,
@@ -63,9 +64,10 @@ export class HistoryBase extends React.Component<InternalProps> {
         dispatch(actions.updateStatus(
             change,
             parameters.entity,
+            parameters.locale,
+            parameters.resource,
             pluralForm,
             translation.pk,
-            parameters.resource
         ));
     }
 
@@ -80,11 +82,11 @@ export class HistoryBase extends React.Component<InternalProps> {
     render() {
         const { history } = this.props;
 
-        if (history.fetching) {
-            return null;
-        }
-
         if (!history.translations.length) {
+            if (history.fetching) {
+                return null;
+            }
+
             return this.renderNoResults();
         }
 
