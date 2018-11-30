@@ -3,17 +3,20 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 
+import './EntityDetails.css';
+
 import { actions as lightboxActions } from 'core/lightbox';
 import * as locales from 'core/locales';
 import * as navigation from 'core/navigation';
 import * as plural from 'core/plural';
 import * as entitieslist from 'modules/entitieslist';
-import { History } from 'modules/history';
 
+import { suggest } from '../actions';
 import { selectors } from '..';
 import { suggest } from '../actions';
 import Editor from './Editor';
 import Metadata from './Metadata';
+import Tools from './Tools';
 
 import type { DbEntity } from 'modules/entitieslist';
 import type { Locale } from 'core/locales';
