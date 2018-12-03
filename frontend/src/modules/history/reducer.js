@@ -1,10 +1,11 @@
 /* @flow */
 
-import { RECEIVE, REQUEST, RESET, UPDATE } from './actions';
-import type { ReceiveAction, RequestAction, ResetAction, UpdateAction } from './actions';
+import { INVALIDATE, RECEIVE, REQUEST, RESET, UPDATE } from './actions';
+import type { InvalidateAction, ReceiveAction, RequestAction, ResetAction, UpdateAction } from './actions';
 
 
 type Action =
+    | InvalidateAction
     | ReceiveAction
     | RequestAction
     | ResetAction
@@ -29,6 +30,7 @@ export type DBTranslation = {|
 
 export type HistoryState = {|
     +fetching: boolean,
+    +didInvalidate: boolean,
     +translations: Array<DBTranslation>,
 |};
 
@@ -44,7 +46,8 @@ function updateTranslation(translations: Array<DBTranslation>, newTranslation: D
 
 
 const initialState = {
-    fetching: true,
+    fetching: false,
+    didInvalidate: true,
     translations: [],
 };
 
@@ -53,15 +56,23 @@ export default function reducer(
     action: Action
 ): HistoryState {
     switch (action.type) {
+        case INVALIDATE:
+            return {
+                ...state,
+                didInvalidate: true,
+            };
         case REQUEST:
             return {
                 ...state,
                 fetching: true,
+                didInvalidate: false,
+                translations: [],
             };
         case RECEIVE:
             return {
                 ...state,
                 fetching: false,
+                didInvalidate: false,
                 translations: action.translations,
             };
         case RESET:

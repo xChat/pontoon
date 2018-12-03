@@ -36,6 +36,25 @@ type InternalProps = {|
  * For each translation, show its author, date and status (approved, rejected).
  */
 export class HistoryBase extends React.Component<InternalProps> {
+    componentDidMount() {
+        this.verifyDataValidity();
+    }
+
+    componentDidUpdate() {
+        this.verifyDataValidity();
+    }
+
+    verifyDataValidity() {
+        const { history } = this.props;
+
+        // Invalidation is handled by the `modules.entitydetails.EntityDetails`
+        // component whenever there is a change of state. We cannot do it here
+        // because this component is not always mounted (because of react-tabs).
+        if (history.didInvalidate) {
+            this.fetchHistory();
+        }
+    }
+
     fetchHistory() {
         const { parameters, pluralForm, dispatch } = this.props;
 
@@ -49,6 +68,7 @@ export class HistoryBase extends React.Component<InternalProps> {
         ));
     }
 
+<<<<<<< 1565eeefe994feff703fe72099bc81dc19da5165
     componentDidMount() {
         this.fetchHistory();
     }
@@ -74,6 +94,8 @@ export class HistoryBase extends React.Component<InternalProps> {
         ));
     }
 
+=======
+>>>>>>> Add a Locales tab that shows translations for other locales.
     renderNoResults() {
         return <section className="history">
             <Localized id="history-history-no-translations">

@@ -4,10 +4,21 @@ import api from 'core/api';
 import { actions as listActions } from 'modules/entitieslist';
 
 
+export const INVALIDATE: 'history/INVALIDATE' = 'history/INVALIDATE';
 export const RECEIVE: 'history/RECEIVE' = 'history/RECEIVE';
 export const REQUEST: 'history/REQUEST' = 'history/REQUEST';
 export const RESET: 'history/RESET' = 'history/RESET';
 export const UPDATE: 'history/UPDATE' = 'history/UPDATE';
+
+
+export type InvalidateAction = {|
+    +type: typeof INVALIDATE,
+|};
+export function invalidate(): InvalidateAction {
+    return {
+        type: INVALIDATE,
+    };
+}
 
 
 export type ReceiveAction = {|
@@ -100,6 +111,7 @@ export function updateStatus(
 
 
 export default {
+    invalidate,
     get,
     receive,
     request,
