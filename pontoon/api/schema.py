@@ -2,12 +2,16 @@ import graphene
 from graphene_django import DjangoObjectType
 from graphene_django.debug import DjangoDebug
 
-from pontoon.api.util import get_fields
+from django.contrib.auth import get_user_model
 
+from pontoon.api.util import get_fields
 from pontoon.base.models import (
-    Project as ProjectModel,
+    Comment as CommentModel,
+    Entity as EntityModel,
     Locale as LocaleModel,
-    ProjectLocale as ProjectLocaleModel
+    Project as ProjectModel,
+    ProjectLocale as ProjectLocaleModel,
+    Translation as TranslationModel,
 )
 
 
@@ -90,6 +94,70 @@ class Locale(DjangoObjectType, Stats):
         return qs.filter(project__disabled=False)
 
 
+class User(DjangoObjectType):
+    class Meta:
+        model = get_user_model()
+        only_fields = (
+            'username',
+            'first_name',
+        )
+
+
+class Entity(DjangoObjectType):
+    class Meta:
+        model = EntityModel
+        only_fields = (
+            'id',
+            'string',
+            'string_plural',
+            'key',
+            'comment',
+            'order',
+        )
+
+
+class Comment(DjangoObjectType):
+    class Meta:
+        model = CommentModel
+        only_fields = (
+            'comment',
+            'date',
+        )
+
+    user = graphene.Field(User)
+
+    def resolve_user(obj, _info):
+        return obj.user
+
+
+class Translation(DjangoObjectType):
+    class Meta:
+        model = TranslationModel
+        only_fields = (
+            'id',
+            'string',
+            'plural_form',
+            'date',
+            'active',
+            'approved',
+            'rejected',
+            'fuzzy',
+        )
+
+    entity = graphene.Field(Entity)
+    user = graphene.Field(User)
+    comments = graphene.List(Comment)
+
+    def resolve_entity(obj, _info):
+        return obj.entity
+
+    def resolve_user(obj, _info):
+        return obj.user
+
+    def resolve_comments(obj, _info):
+        return obj.comments.all()
+
+
 class Query(graphene.ObjectType):
     debug = graphene.Field(DjangoDebug, name='__debug')
 
@@ -99,6 +167,13 @@ class Query(graphene.ObjectType):
 
     locales = graphene.List(Locale)
     locale = graphene.Field(Locale, code=graphene.String())
+
+    unreviewed_translations = graphene.List(
+        Translation,
+        locale=graphene.String(),
+        project=graphene.String(),
+    )
+    translation = graphene.Field(Translation, id=graphene.String())
 
     def resolve_projects(obj, info, include_disabled):
         qs = ProjectModel.objects
@@ -150,6 +225,47 @@ class Query(graphene.ObjectType):
             raise Exception('Cyclic queries are forbidden')
 
         return qs.get(code=code)
+
+    def resolve_unreviewed_translations(obj, info, locale, project):
+        qs = TranslationModel.objects.filter(
+            entity__obsolete=False,
+            approved=False,
+            rejected=False,
+        )
+
+        fields = get_fields(info)
+
+        if 'unreviewed_translations.user' in fields:
+            qs = qs.prefetch_related('user')
+
+        if 'unreviewed_translations.entity' in fields:
+            qs = qs.prefetch_related('entity')
+
+        if 'unreviewed_translations.comments' in fields:
+            qs = qs.prefetch_related('comments')
+
+        if locale:
+            qs = qs.filter(locale__code=locale)
+
+        if project:
+            qs = qs.filter(entity__resource__project__slug=project)
+
+        return qs.all()
+
+    def resolve_translation(obj, info, id):
+        qs = TranslationModel.objects
+        fields = get_fields(info)
+
+        if 'translation.user' in fields:
+            qs = qs.prefetch_related('user')
+
+        if 'translation.entity' in fields:
+            qs = qs.prefetch_related('entity')
+
+        if 'translation.comments' in fields:
+            qs = qs.prefetch_related('comments')
+
+        return qs.get(pk=id)
 
 
 schema = graphene.Schema(query=Query)

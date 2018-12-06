@@ -3,11 +3,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
+import { Route, Switch } from 'react-router';
 import { ConnectedRouter } from 'connected-react-router';
 
 import './index.css';
 
 import { AppLocalizationProvider } from 'core/l10n';
+import { ReviewPage, ReviewListPage } from 'modules/review';
 
 import history from './history';
 import store from './store';
@@ -19,7 +21,11 @@ ReactDOM.render(
         <Provider store={ store }>
             <ConnectedRouter history={ history }>
                 <AppLocalizationProvider>
-                    <App />
+                    <Switch>
+                        <Route exact path="/:locale/:project/review/:translation" component={ ReviewPage } />
+                        <Route exact path="/:locale/:project/review/" component={ ReviewListPage } />
+                        <Route path="/" component={ App } />
+                    </Switch>
                 </AppLocalizationProvider>
             </ConnectedRouter>
         </Provider>

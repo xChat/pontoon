@@ -1,0 +1,29 @@
+.review-list {
+    list-style: none;
+    margin: auto;
+    width: 80%;
+}
+
+.review-list li {
+    cursor: pointer;
+    padding: 20px 10px;
+}
+
+.review-list li:hover {
+    background: #4D5967;
+}
+
+.review-list span {
+    float: right;
+}
+
+.review-list .original {
+    font-style: italic;
+    overflow: ellipsis;
+    margin-bottom: 8px;
+}
+
+.review-list .suggestion {
+    font-size: 1.1em;
+    font-weight: bold;
+}

@@ -61,6 +61,7 @@ export class AppLocalizationProviderBase extends React.Component<InternalProps> 
 
 const mapStateToProps = (state: Object): Props => {
     return {
+        router: state.router,  // Unused, but needed for updates to propagate.
         l10n: state[l10n.NAME],
     };
 };

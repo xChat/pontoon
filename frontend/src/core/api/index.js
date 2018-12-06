@@ -1,5 +1,6 @@
 /* @flow */
 
+import CommentAPI from './comment';
 import EntityAPI from './entity';
 import LocaleAPI from './locale';
 import L10nAPI from './l10n';
@@ -10,6 +11,7 @@ import * as types from './types';
 
 
 export default {
+    comment: new CommentAPI(),
     entity: new EntityAPI(),
     locale: new LocaleAPI(),
     l10n: new L10nAPI(),

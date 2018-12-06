@@ -11,6 +11,7 @@ import * as user from 'core/user';
 import * as entitieslist from 'modules/entitieslist';
 import * as history from 'modules/history';
 import * as otherlocales from 'modules/otherlocales';
+import * as review from 'modules/review';
 
 
 // Combine reducers from all modules, using their NAME constant as key.
@@ -24,4 +25,5 @@ export default combineReducers({
     [entitieslist.NAME]: entitieslist.reducer,
     [history.NAME]: history.reducer,
     [otherlocales.NAME]: otherlocales.reducer,
+    [review.NAME]: review.reducer,
 });

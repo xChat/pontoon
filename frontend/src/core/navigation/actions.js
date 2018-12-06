@@ -66,7 +66,18 @@ export function updateStatus(router: Object, status: ?string): Function {
 }
 
 
+/**
+ * Update the URL to open the review page for a translation.
+ */
+export function openReview(params: Object, translation: ?string): Function {
+    return dispatch => {
+        dispatch(push(`/${params.locale}/${params.project}/review/${translation}/`));
+    };
+}
+
+
 export default {
+    openReview,
     updateEntity,
     updateSearch,
     updateStatus,
