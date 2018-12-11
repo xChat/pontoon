@@ -2420,7 +2420,6 @@ var Pontoon = (function (my) {
           data: {
             csrfmiddlewaretoken: $('#server').data('csrf'),
             entity: entity.pk,
-            locale: self.locale.code,
             content: $('#comment').val(),
           },
           success: function(data) {
