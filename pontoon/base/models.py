@@ -806,6 +806,7 @@ class Locale(AggregatedStats):
 
     def serialize(self):
         return {
+            'pk': self.pk,
             'code': self.code,
             'name': self.name,
             'nplurals': self.nplurals,
