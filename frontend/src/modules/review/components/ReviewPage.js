@@ -264,9 +264,13 @@ export class ReviewPageBase extends React.Component {
             return;
         }
 
-        const { match } = this.props;
+        const { match, review } = this.props;
+        const findSuggestion = elt => elt.id === match.params.translation;
+        const suggestion = review.suggestions.find(findSuggestion);
+
         this.props.dispatch(
             actions.addComment(
+                suggestion.entity.id,
                 match.params.translation,
                 this.state.comment,
             )

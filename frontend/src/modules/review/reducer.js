@@ -40,7 +40,7 @@ function suggestion(entry: Object): Suggestion {
         original: entry.entity.string,
         translation: entry.string,
         date: entry.date,
-        user: entry.user.firstName,
+        user: entry.user ? entry.user.firstName: null,
         entity: entry.entity,
         pluralForm: entry.pluralForm,
     };
@@ -49,8 +49,8 @@ function suggestion(entry: Object): Suggestion {
 
 function comment(entry: Object): Comment {
     return {
-        author: entry.user.username,
-        comment: entry.comment,
+        author: entry.author.username,
+        comment: entry.content,
         date: entry.date,
     };
 }

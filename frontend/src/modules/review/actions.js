@@ -38,9 +38,9 @@ export function get(locale: string, project: string): Function {
 }
 
 
-export function addComment(translation: string, comment: string): Function {
+export function addComment(entity: string, translation: string, comment: string): Function {
     return async dispatch => {
-        await api.comment.add(translation, comment);
+        await api.comment.add(entity, translation, comment);
         dispatch(getComments(translation));
     };
 }

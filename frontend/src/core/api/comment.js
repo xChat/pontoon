@@ -10,9 +10,9 @@ export default class CommentAPI extends APIBase {
                 id: "${translation}"
             ) {
                 comments {
-                    comment
+                    content
                     date
-                    user {
+                    author {
                         username
                     }
                 }
@@ -27,12 +27,13 @@ export default class CommentAPI extends APIBase {
         return await this.fetch('/graphql/', 'GET', payload, headers);
     }
 
-    async add(translation: string, comment: string) {
+    async add(entity: string, translation: string, comment: string) {
         const csrfToken = this.getCSRFToken();
 
         const payload = new URLSearchParams();
+        payload.append('entity', entity);
         payload.append('translation', translation);
-        payload.append('comment', comment);
+        payload.append('content', comment);
         payload.append('csrfmiddlewaretoken', csrfToken);
 
         const headers = new Headers();

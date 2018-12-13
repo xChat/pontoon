@@ -120,14 +120,14 @@ class Comment(DjangoObjectType):
     class Meta:
         model = CommentModel
         only_fields = (
-            'comment',
+            'content',
             'date',
         )
 
-    user = graphene.Field(User)
+    author = graphene.Field(User)
 
-    def resolve_user(obj, _info):
-        return obj.user
+    def resolve_author(obj, _info):
+        return obj.author
 
 
 class Translation(DjangoObjectType):
