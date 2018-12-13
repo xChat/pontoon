@@ -68,20 +68,6 @@ export class HistoryBase extends React.Component<InternalProps> {
         ));
     }
 
-<<<<<<< 1565eeefe994feff703fe72099bc81dc19da5165
-    componentDidMount() {
-        this.fetchHistory();
-    }
-
-    componentDidUpdate(prevProps: InternalProps) {
-        if (
-            this.props.parameters.entity !== prevProps.parameters.entity ||
-            this.props.pluralForm !== prevProps.pluralForm
-        ) {
-            this.fetchHistory();
-        }
-    }
-
     updateTranslationStatus = (translation: DBTranslation, change: string) => {
         const { parameters, pluralForm, dispatch } = this.props;
         dispatch(actions.updateStatus(
@@ -94,8 +80,6 @@ export class HistoryBase extends React.Component<InternalProps> {
         ));
     }
 
-=======
->>>>>>> Add a Locales tab that shows translations for other locales.
     renderNoResults() {
         return <section className="history">
             <Localized id="history-history-no-translations">
