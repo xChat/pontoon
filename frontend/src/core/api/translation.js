@@ -68,6 +68,45 @@ export default class TranslationAPI extends APIBase {
         return this._changeStatus('/unreject-translation/', id, resource);
     }
 
+    async get(id: string) {
+        const query = `{
+            translation(
+                id: "${id}",
+            ) {
+                string
+                date
+                id
+                pluralForm
+                active
+                entity {
+                    id
+                    string
+                    comment
+                    resource {
+                        path
+                    }
+                }
+                user {
+                    firstName
+                }
+                comments {
+                    content
+                    date
+                    author {
+                        username
+                    }
+                }
+            }
+        }`;
+        const payload = new URLSearchParams();
+        payload.append('query', query);
+
+        const headers = new Headers();
+        headers.append('X-Requested-With', 'XMLHttpRequest');
+
+        return await this.fetch('/graphql/', 'GET', payload, headers);
+    }
+
     async getUnreviewed(locale: string, project: string) {
         const query = `{
             unreviewedTranslations(

@@ -2925,6 +2925,7 @@ class Translation(DirtyFieldsMixin, models.Model):
         return {
             'pk': self.pk,
             'string': self.string,
+            'active': self.active,
             'approved': self.approved,
             'rejected': self.rejected,
             'fuzzy': self.fuzzy,

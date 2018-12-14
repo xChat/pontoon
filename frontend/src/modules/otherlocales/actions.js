@@ -5,6 +5,7 @@ import api from 'core/api';
 export const INVALIDATE: 'otherlocales/INVALIDATE' = 'otherlocales/INVALIDATE';
 export const RECEIVE: 'otherlocales/RECEIVE' = 'otherlocales/RECEIVE';
 export const REQUEST: 'otherlocales/REQUEST' = 'otherlocales/REQUEST';
+export const RESET: 'otherlocales/RESET' = 'otherlocales/RESET';
 
 
 export type InvalidateAction = {|
@@ -46,6 +47,16 @@ export function request(entity: number): RequestAction {
 }
 
 
+export type ResetAction = {|
+    +type: typeof RESET,
+|};
+export function reset(): ResetAction {
+    return {
+        type: RESET,
+    };
+}
+
+
 export function get(entity: number, locale: string, pluralForm: number): Function {
     return async dispatch => {
         dispatch(request(entity));
@@ -62,4 +73,5 @@ export default {
     get,
     receive,
     request,
+    reset,
 };

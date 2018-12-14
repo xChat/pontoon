@@ -1,12 +1,14 @@
 /* @flow */
 
-import { UPDATE_COMMENTS, UPDATE_SUGGESTIONS } from './actions';
-import type { UpdateCommentsAction, UpdateSuggestionsAction } from './actions';
+import { UPDATE_COMMENTS, UPDATE_SUGGESTIONS, UPDATE_TRANSLATION, RESET } from './actions';
+import type { UpdateCommentsAction, UpdateSuggestionsAction, UpdateTranslationAction, ResetAction } from './actions';
 
 
 type Action =
     | UpdateCommentsAction
     | UpdateSuggestionsAction
+    | UpdateTranslationAction
+    | ResetAction
 ;
 
 type Comment = {|
@@ -31,6 +33,7 @@ export type ReviewListState = {|
 const initial: ReviewListState = {
     suggestions: [],
     comments: [],
+    translation: null,
 };
 
 
@@ -71,10 +74,16 @@ export default function reducer(
                 ...state,
                 suggestions: action.data.map(suggestion),
             };
-        case '@@router/LOCATION_CHANGE':
+        case UPDATE_TRANSLATION:
+            return {
+                ...state,
+                translation: action.data,
+            };
+        case RESET:
             return {
                 ...state,
                 comments: [],
+                translation: null,
             };
         default:
             return state;

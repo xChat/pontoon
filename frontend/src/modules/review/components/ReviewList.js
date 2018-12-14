@@ -5,6 +5,8 @@ import TimeAgo from 'react-timeago';
 
 import './ReviewList.css';
 
+import EntitiesLoader from 'modules/entitieslist/components/EntitiesLoader';
+
 
 export default class ReviewList extends React.Component {
     openSuggestion = (id: string) => {
@@ -15,6 +17,12 @@ export default class ReviewList extends React.Component {
 
     render() {
         const { suggestions } = this.props;
+
+        if (!suggestions.length) {
+            return <div className="review-list">
+                <EntitiesLoader />
+            </div>;
+        }
 
         return <ul className="review-list">
             { suggestions.map((suggestion, i) => {

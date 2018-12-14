@@ -14,6 +14,10 @@
     justify-content: space-between;
 }
 
+.review-page nav ul li:only-child {
+    margin: auto;
+}
+
 .review-page nav ul li a {
     background: white;
     border-radius: 4px;
@@ -28,6 +32,10 @@
 .review-page nav ul li:last-child a .fa {
     margin-right: 0;
     margin-left: 8px;
+}
+
+.review-page nav ul li:first-child a .fa {
+    margin-right: 8px;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -48,10 +56,27 @@
 }
 .review-page .review-content .active {
     background: #ffeef0;
+    font-style: italic;
 }
 .review-page .review-content .suggestion {
     background: #e6ffed;
     font-weight: bold;
+}
+
+.review-page .review-content p .helper {
+    background: rgba(207, 207, 207, 0.4);
+    border: 1px solid rgb(207, 207, 207);
+    border-radius: 3px;
+    display: none;
+    float: right;
+    font-size: 0.9em;
+    font-style: normal;
+    font-weight: normal;
+    padding: 2px 4px;
+}
+
+.review-page .review-content p:hover .helper {
+    display: inline;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -83,6 +108,10 @@
 
 .review-page .review-actions button.approve {
     background: #7BC876;
+}
+
+.review-page .review-actions button.edit {
+    background: #e9cf71;
 }
 
 .review-page .review-actions button.reject {

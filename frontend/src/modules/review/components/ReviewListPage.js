@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 
 import './ReviewListPage.css';
 
@@ -19,7 +20,6 @@ export class ReviewPageBase extends React.Component {
 
     openSuggestion = (id: string) => {
         const { parameters } = this.props;
-
         this.props.dispatch(navigation.actions.openReview(parameters, id));
     }
 
@@ -29,7 +29,10 @@ export class ReviewPageBase extends React.Component {
         return <div className="review-page">
             <header>
                 <h1>Unreviewed Suggestions</h1>
-                <h2>{ `${parameters.project} ⋅ ${parameters.locale}` }</h2>
+                <h2>
+                    { `${parameters.project} ⋅ ${parameters.locale}` }
+                    <Link to={ `/${parameters.locale}/${parameters.project}/all/` }>Translate</Link>
+                </h2>
             </header>
             <section>
                 <ReviewList

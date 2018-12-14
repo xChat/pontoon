@@ -3,9 +3,11 @@
 import * as React from 'react';
 import TimeAgo from 'react-timeago';
 import { Localized } from 'fluent-react';
+import { Link } from 'react-router-dom';
 
 import './Translation.css';
 
+import type { Navigation } from 'core/navigation';
 import type { UserState } from 'core/user';
 
 import type { DBTranslation } from '../reducer';
@@ -15,6 +17,7 @@ type Props = {|
     canReview: boolean,
     translation: DBTranslation,
     user: UserState,
+    parameters: Navigation,
     updateTranslationStatus: Function,
 |};
 
@@ -89,7 +92,7 @@ export default class Translation extends React.Component<Props> {
     }
 
     render() {
-        const { canReview, translation, user } = this.props;
+        const { canReview, translation, user, parameters } = this.props;
 
         // Does the currently logged in user own this translation?
         const ownTranslation = (
@@ -119,6 +122,7 @@ export default class Translation extends React.Component<Props> {
                     />
                 </div>
                 <menu className="toolbar">
+                    <Link to={ `/${parameters.locale}/${parameters.project}/review/${translation.pk}/` }><button className='comment fa' /></Link>
                 { translation.approved ?
                     // Unapprove Button
                     <Localized

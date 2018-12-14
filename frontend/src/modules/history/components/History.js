@@ -111,6 +111,7 @@ export class HistoryBase extends React.Component<InternalProps> {
                         translation={ translation }
                         canReview={ canReview }
                         user={ user }
+                        parameters={ parameters }
                         updateTranslationStatus={ this.updateTranslationStatus }
                         key={ key }
                     />;

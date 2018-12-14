@@ -76,8 +76,19 @@ export function openReview(params: Object, translation: ?string): Function {
 }
 
 
+/**
+ * Update the URL to open the review list page.
+ */
+export function openReviewList(params: Object): Function {
+    return dispatch => {
+        dispatch(push(`/${params.locale}/${params.project}/review/`));
+    };
+}
+
+
 export default {
     openReview,
+    openReviewList,
     updateEntity,
     updateSearch,
     updateStatus,

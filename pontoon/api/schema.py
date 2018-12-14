@@ -11,6 +11,7 @@ from pontoon.base.models import (
     Locale as LocaleModel,
     Project as ProjectModel,
     ProjectLocale as ProjectLocaleModel,
+    Resource as ResourceModel,
     Translation as TranslationModel,
 )
 
@@ -103,6 +104,14 @@ class User(DjangoObjectType):
         )
 
 
+class Resource(DjangoObjectType):
+    class Meta:
+        model = ResourceModel
+        only_fields = (
+            'path',
+        )
+
+
 class Entity(DjangoObjectType):
     class Meta:
         model = EntityModel
@@ -114,6 +123,11 @@ class Entity(DjangoObjectType):
             'comment',
             'order',
         )
+
+    resource = graphene.Field(Resource)
+
+    def resolve_resource(obj, _info):
+        return obj.resource
 
 
 class Comment(DjangoObjectType):

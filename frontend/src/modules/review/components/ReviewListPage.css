@@ -13,3 +13,13 @@
     font-size: 1.8em;
     font-style: italic;
 }
+
+.review-page > header h2 a {
+    background: white;
+    border-radius: 4px;
+    color: black;
+    font-size: 0.9em;
+    font-style: normal;
+    margin-left: 30px;
+    padding: 5px 10px;
+}

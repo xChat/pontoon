@@ -59,6 +59,7 @@
     width: 22px;
 }
 
+.translation.can-approve header button.comment,
 .translation.can-approve header button.approve,
 .translation.can-approve header button.unapprove,
 .translation.can-reject header button.reject,
@@ -79,6 +80,7 @@
 .translation > header button.approve:before,
 .translation > header button.unapprove:before {
     content: "";
+    margin-left: 5px;
 }
 
 .translation > header button.approve:hover:before,
@@ -105,4 +107,9 @@
 .translation > header button.reject:not(:hover):before,
 .translation > header button.unreject:hover:before {
     font-weight: 400;
+}
+
+.translation > header button.comment:before {
+    color: #AAAAAA;
+    content: "";
 }

@@ -2,14 +2,15 @@
 
 import api from 'core/api';
 
-import { INVALIDATE, RECEIVE, REQUEST } from './actions';
-import type { InvalidateAction, ReceiveAction, RequestAction } from './actions';
+import { INVALIDATE, RECEIVE, REQUEST, RESET } from './actions';
+import type { InvalidateAction, ReceiveAction, RequestAction, ResetAction } from './actions';
 
 
 type Action =
     | InvalidateAction
     | ReceiveAction
     | RequestAction
+    | ResetAction
 ;
 
 
@@ -49,6 +50,11 @@ export default function reducer(
                 fetching: false,
                 didInvalidate: false,
                 translations: action.translations,
+            };
+        case RESET:
+            return {
+                ...state,
+                translations: [],
             };
         default:
             return state;

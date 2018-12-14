@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { push } from 'connected-react-router';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import TimeAgo from 'react-timeago';
 
@@ -19,39 +20,30 @@ import { actions, NAME } from '..';
 
 class Navigation extends React.Component {
     render() {
-        const { locale, project, suggestions, suggestion } = this.props;
-
-        const suggestionIndex = suggestions.indexOf(suggestion);
-
-        let prevIndex = suggestionIndex - 1;
-        if (prevIndex === -1) {
-            prevIndex = suggestions.length - 1;
-        }
-        const prev = suggestions[prevIndex];
-
-        let nextIndex = (suggestionIndex + 1) % suggestions.length;
-        const next = suggestions[nextIndex];
+        const { locale, project, prev, next } = this.props;
 
         return <nav>
             <ul>
+                { !prev ? null :
                 <li>
                     <Link to={ `/${locale}/${project}/review/${prev.id}/` }>
                         <i className="fa fa-caret-left" />
                         Previous
                     </Link>
-                </li>
+                </li> }
                 <li>
                     <Link to={ `/${locale}/${project}/review/` }>
                         <i className="fa fa-align-justify" />
                         List
                     </Link>
                 </li>
+                { !next ? null :
                 <li>
                     <Link to={ `/${locale}/${project}/review/${next.id}/` }>
                         Next
                         <i className="fa fa-caret-right" />
                     </Link>
-                </li>
+                </li> }
             </ul>
         </nav>;
     }
@@ -60,9 +52,10 @@ class Navigation extends React.Component {
 
 class Actions extends React.Component {
     render() {
-        const { approve, reject, comment } = this.props;
+        const { approve, edit, reject, comment } = this.props;
 
         return <div className="review-actions">
+            <button className="edit" onClick={ edit }>Edit</button>
             <button className="approve" onClick={ approve }>Approve</button>
             <button className="reject" onClick={ reject }>Reject</button>
             <button className="comment" onClick={ comment }>Comment</button>
@@ -187,26 +180,25 @@ export class ReviewPageBase extends React.Component {
         const { match } = this.props;
 
         this.props.dispatch(actions.get(match.params.locale, match.params.project));
+        this.props.dispatch(actions.getTranslation(match.params.translation));
     }
 
     componentDidUpdate(prevProps) {
         const { match, review } = this.props;
 
-        if (
-            prevProps.review.suggestions !== review.suggestions ||
-            prevProps.match.params.translation !== match.params.translation
-        ) {
-            const findSuggestion = elt => elt.id === match.params.translation;
-            const suggestion = review.suggestions.find(findSuggestion);
+        if (prevProps.match.params.translation !== match.params.translation) {
+            this.props.dispatch(history.actions.reset());
+            this.props.dispatch(otherlocales.actions.reset());
+            this.props.dispatch(actions.reset());
 
+            this.props.dispatch(actions.getTranslation(match.params.translation));
+        }
+
+        if (prevProps.review.translation !== review.translation) {
+            const suggestion = review.translation;
             if (!suggestion) {
                 return;
             }
-
-            // Get comments
-            this.props.dispatch(actions.getComments(
-                suggestion.id,
-            ));
 
             // Get history
             this.props.dispatch(history.actions.get(
@@ -227,12 +219,16 @@ export class ReviewPageBase extends React.Component {
     updateTranslationStatus = (translation, change) => {
         const { match, review, parameters } = this.props;
 
-        const findSuggestion = elt => elt.id === match.params.translation;
-        const suggestion = review.suggestions.find(findSuggestion);
+        const suggestion = review.translation;
+        let next = null;
 
-        const suggestionIndex = review.suggestions.indexOf(suggestion);
-        const nextIndex = (suggestionIndex + 1) % review.suggestions.length;
-        const next = review.suggestions[nextIndex];
+        if (review.suggestions.length) {
+            const findSuggestion = elt => elt.id === match.params.translation;
+
+            const suggestionIndex = review.suggestions.findIndex(findSuggestion);
+            const nextIndex = (suggestionIndex + 1) % review.suggestions.length;
+            next = review.suggestions[nextIndex];
+        }
 
         this.props.dispatch(history.actions.updateStatus(
             change,
@@ -242,11 +238,28 @@ export class ReviewPageBase extends React.Component {
             suggestion.pluralForm || -1,
             suggestion.id,
         ));
-        this.props.dispatch(navigation.actions.openReview(parameters, next.id));
+
+        if (next) {
+            this.props.dispatch(navigation.actions.openReview(parameters, next.id));
+        }
+        else {
+            this.props.dispatch(navigation.actions.openReviewList(parameters));
+        }
     }
 
     updateComment = (comment) => {
         this.setState({ comment });
+    }
+
+    edit = () => {
+        const { dispatch, match, review } = this.props;
+
+        if (!review.translation) {
+            return;
+        }
+
+        const resource = review.translation.entity.resource.path;
+        dispatch(push(`/${match.params.locale}/${match.params.project}/${resource}/?string=${review.translation.entity.id}`));
     }
 
     approve = () => {
@@ -260,17 +273,15 @@ export class ReviewPageBase extends React.Component {
     }
 
     addComment = () => {
-        if (!this.state.comment) {
+        const { match, review } = this.props;
+
+        if (!this.state.comment || !review.translation) {
             return;
         }
 
-        const { match, review } = this.props;
-        const findSuggestion = elt => elt.id === match.params.translation;
-        const suggestion = review.suggestions.find(findSuggestion);
-
         this.props.dispatch(
             actions.addComment(
-                suggestion.entity.id,
+                review.translation.entity.id,
                 match.params.translation,
                 this.state.comment,
             )
@@ -281,43 +292,92 @@ export class ReviewPageBase extends React.Component {
     render() {
         const { history, match, otherlocales, review } = this.props;
 
-        const findSuggestion = elt => elt.id === match.params.translation;
-        const suggestion = review.suggestions.find(findSuggestion);
+        if (!review.translation || !review.suggestions.length) {
+            return <div className="review-page">
+                <header>
+                    <h1>Unreviewed Suggestions</h1>
+                    <h2>
+                        { `${match.params.project} ⋅ ${match.params.locale}` }
+                        <Link to={ `/${match.params.locale}/${match.params.project}/all/` }>Translate</Link>
+                    </h2>
+                </header>
+            </div>;
+        }
 
-        if (!suggestion) {
-            return null;
+        const suggestion = review.translation;
+
+        const findSuggestion = elt => elt.id === match.params.translation;
+        const suggestionIndex = review.suggestions.findIndex(findSuggestion);
+
+        let prev = null;
+        let next = null;
+
+        if (suggestionIndex > -1) {
+            let prevIndex = suggestionIndex - 1;
+            if (prevIndex === -1) {
+                prevIndex = review.suggestions.length - 1;
+            }
+            prev = review.suggestions[prevIndex];
+
+            let nextIndex = (suggestionIndex + 1) % review.suggestions.length;
+            next = review.suggestions[nextIndex];
         }
 
         const controls = <Actions
             approve={ this.approve }
+            edit={ this.edit }
             reject={ this.reject }
             comment={ this.addComment }
         />;
 
+        let activeTranslation = null;
+        if (!suggestion.active && history.translations.length) {
+            activeTranslation = history.translations.find(t => t.active);
+        }
+
         return <div className="review-page">
             <header>
                 <h1>Unreviewed Suggestions</h1>
-                <h2>{ `${match.params.project} ⋅ ${match.params.locale}` }</h2>
+                <h2>
+                    { `${match.params.project} ⋅ ${match.params.locale}` }
+                    <Link to={ `/${match.params.locale}/${match.params.project}/all/` }>Translate</Link>
+                </h2>
             </header>
             <Navigation
                 locale={ match.params.locale }
                 project={ match.params.project }
-                suggestions={ review.suggestions }
-                suggestion={ suggestion }
+                next={ next }
+                prev={ prev }
             />
             { controls }
             <section className="review-content">
-                <p className="original">{ suggestion.original }</p>
-                <p className="active"></p>
-                <p className="suggestion">{ suggestion.translation }</p>
+                <p className="original">
+                    { suggestion.entity.string }
+                    <span className="helper">Original string</span>
+                </p>
+                { !activeTranslation ? null :
+                    <p className="active">
+                        { activeTranslation.string }
+                        <span className="helper">Currently active translation</span>
+                    </p>
+                }
+                <p className="suggestion">
+                    { suggestion.string }
+                    <span className="helper">Proposed translation</span>
+                </p>
             </section>
             <section className="review-metadata">
                 <header>
-                    <p>{ suggestion.user }</p>
+                    <p>{ suggestion.user ? suggestion.user.firstName : 'IMPORTED' }</p>
                     <TimeAgo date={ suggestion.date } />
                 </header>
-                <p>Comment: that's a very good poem</p>
-                <p>File: ui/hidden/poem.po</p>
+                <p>{ `Comment: ${suggestion.entity.comment}` }</p>
+                <p>
+                    <span>File: </span>
+                    <Link to={ `/${match.params.locale}/${match.params.project}/${suggestion.entity.resource.path}/` }>
+                        { suggestion.entity.resource.path }
+                    </Link>
+                </p>
             </section>
             <section className="review-panels">
                 <Panels
@@ -332,8 +392,8 @@ export class ReviewPageBase extends React.Component {
             <Navigation
                 locale={ match.params.locale }
                 project={ match.params.project }
-                suggestions={ review.suggestions }
-                suggestion={ suggestion }
+                next={ next }
+                prev={ prev }
             />
         </div>;
     }
