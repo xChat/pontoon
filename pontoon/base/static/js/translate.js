@@ -314,7 +314,7 @@ var Pontoon = (function (my) {
 
               list.append(
                 '<li data-id="' + this.pk + '" class="suggestion ' +
-                (this.approved ? 'translated' : this.rejected ? 'rejected' : this.fuzzy ? 'fuzzy' : 'unreviewed') +
+                (this.approved ? 'translated' : this.rejected ? '' : this.fuzzy ? 'fuzzy' : 'unreviewed') +
                 '" title="Copy Into Translation (Tab)">' +
                   '<header class="clearfix' +
                     ((!entity.readonly && self.user.canTranslate()) ? ' translator' :
@@ -328,6 +328,7 @@ var Pontoon = (function (my) {
                     '</div>' +
                     '<menu class="toolbar">' +
                       ((i > 0) ? '<a href="#" class="toggle-diff" data-alternative-text="Hide diff" title="Show diff against the currently active translation">Show diff</a>' : '') +
+
                       '<button class="comments far fa-comment' + (self.getCommentsOfType('translation_id', this.pk).length ? ' has' : '') + '" title="Translation Review Comments" data-type="translation"></button>' +
                       '<button class="' + (this.approved ? 'unapprove' : 'approve') + ' fa" title="' +
                        (this.approved ? 'Unapprove' : 'Approve')  + '"></button>' +
@@ -345,6 +346,33 @@ var Pontoon = (function (my) {
                   '<p class="translation-clipboard">' +
                     self.doNotRender(this.string) +
                   '</p>' +
+                  '<ul>' +
+                    '<li class="' + (this.pk === 5681825 ? ' hidden ' : '') + 'add-comment added clearfix">' +
+                      '<div class="avatar">' +
+                        '<a href="/contributors/dvgiVCmoeidF2xcqSnBHtpzLTFU" target="_blank">' +
+                          '<img src="//www.gravatar.com/avatar/b84878e5f05114988a715bb9f3742e2f?s=44" width="44" height="44">' +
+                        '</a>' +
+                      '</div>' +
+                      '<header class="wrapper clearfix">' +
+                        '<p class="aha">Jobava &middot; <span class="green">4 months ago</span></p>' +
+                        '<p class="comment">Sposojenk se izogibamo, če obstaja uveljavljen domač izraz</p>' +
+                      '</header>' +
+                    '</li>' +
+                    '<li class="add-comment clearfix">' +
+                      '<div class="avatar">' +
+                        '<a href="/contributors/dvgiVCmoeidF2xcqSnBHtpzLTFU" target="_blank">' +
+                          '<img src="//www.gravatar.com/avatar/b7aed7b21e849ab3d67ffd811313a75b?s=44" width="44" height="44">' +
+                        '</a>' +
+                      '</div>' +
+                      '<header class="wrapper clearfix">' +
+                        '<textarea id="comment-N" placeholder="Write a comment..."></textarea>' +
+                        '<div class="toolbar">' +
+                          '<button class="' + (this.approved ? 'unapprove' : 'approve') + ' fa" title="Approve"></button>' +
+                          '<button class="' + (this.rejected ? 'unreject' : 'reject') + ' fa" title="Reject"></button>' +
+                          '</div>' +
+                      '</header>' +
+                    '</li>' +
+                  '</ul>' +
                 '</li>');
             });
 
@@ -460,21 +488,20 @@ var Pontoon = (function (my) {
         '<header class="clearfix">' +
           '<div class="avatar">' +
             '<a href="/contributors/' + comment.username + '" target="_blank">' +
-              '<img src="' + comment.gravatar_url + '">' +
+              '<img width="44" height="44" src="' + comment.gravatar_url + '">' +
             '</a>' +
           '</div>' +
           '<div class="info">' +
             '<a href="/contributors/' + comment.username + '" target="_blank">' + comment.user + '</a>' +
-            '<time class="stress" datetime="' + comment.date_iso + '">' + comment.date + ' UTC</time>' +
+            ((comment.user !== 'Localization Note') ? ('<time class="stress" datetime="' + comment.date_iso + '">' + comment.date + ' UTC</time>') : '') +
           '</div>' +
           '<menu class="toolbar">' +
-            '<button class="delete far" title="Delete comment"></button>' +
+            (comment.user !== 'Localization Note' ? '<button class="delete far" title="Delete comment"></button>' : '') +
           '</menu>' +
         '</header>' +
         '<p>' + this.doNotRender(comment.content) + '</p>' +
       '</li>');
     },
-
 
     /*
      * Render comments for the given button
@@ -504,7 +531,11 @@ var Pontoon = (function (my) {
       }
 
       // Render comments
-      $('#helpers > section.comments ul').empty();
+      $('#helpers > section.comments ul > li').each(function() {
+        if ($(this).data('id') !== "undefined") {
+          $(this).remove();
+        }
+      });
       $('#comment').removeData().data(data).val('');
 
       $.each(comments, function() {
@@ -765,8 +796,11 @@ var Pontoon = (function (my) {
           }
         }
 
-        var comment = this.linkify(splitComment);
-        self.appendMetaData('Comment', comment);
+        self.appendComment({
+          user: 'Localization Note',
+          gravatar_url: '',
+          content: splitComment,
+        });
 
         // Screenshot
         $('#metadata').find('a').each(function() {
@@ -834,12 +868,13 @@ var Pontoon = (function (my) {
           }
         }
 
+        // Metadata: project
+        var projectLink = '/' + self.locale.code + '/' +  entity.project.slug + '/';
         self.appendMetaData('Resource', entity.path, link, linkClass);
+        $('#metadata .resource .content').prepend(
+          '<a href="' + projectLink + '">' + entity.project.name + '</a> &middot; '
+        );
       }
-
-      // Metadata: project
-      var projectLink = '/' + self.locale.code + '/' +  entity.project.slug + '/';
-      self.appendMetaData('Project', entity.project.name, projectLink);
 
       // Original string and plurals
       $('#original').html(entity.marked);
@@ -2537,10 +2572,15 @@ var Pontoon = (function (my) {
       // Open comments
       $('#single').on('click', 'button.comments', function (e) {
         var $button = $(this);
-        self.renderCommentsForButton($button);
 
-        // Focus comments tab
-        var tab = $('#helpers a[href="#comments"]').click();
+        if ($(this).parents('.suggestion[data-id]').length) {
+          $(this).parents('.suggestion[data-id]').find('.add-comment').show();
+        }
+        else {
+          // Focus comments tab
+          var tab = $('#helpers a[href="#comments"]').click();
+          self.renderCommentsForButton($button);
+        }
       });
 
       // Add comment
