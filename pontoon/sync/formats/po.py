@@ -3,6 +3,7 @@ Parser for to pofile translation format.
 """
 from __future__ import absolute_import
 
+from dateutil.relativedelta import relativedelta
 from datetime import datetime
 
 from django.utils import timezone
@@ -83,7 +84,7 @@ class POResource(ParsedResource):
         if len(self.translations) > 0:
             latest_translation = max(
                 self.translations,
-                key=lambda t: t.last_updated or timezone.make_aware(datetime.min),
+                key=lambda t: t.last_updated or timezone.make_aware(datetime.now() - relativedelta(years=100)),
             )
             if latest_translation.last_updated:
                 metadata["PO-Revision-Date"] = latest_translation.last_updated.strftime(

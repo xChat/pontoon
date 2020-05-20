@@ -12,6 +12,8 @@ from compare_locales.paths import (
     ProjectFiles,
     TOMLParser,
 )
+
+from dateutil.relativedelta import relativedelta
 from datetime import datetime
 from itertools import chain
 
@@ -811,7 +813,7 @@ class VCSTranslation(object):
         if len(db_translations) > 0:
             last_translation = max(
                 db_translations,
-                key=lambda t: t.date or timezone.make_aware(datetime.min),
+                key=lambda t: t.date or timezone.make_aware(datetime.now() - relativedelta(years=100)),
             )
             self.last_updated = last_translation.date
             self.last_translator = last_translation.user

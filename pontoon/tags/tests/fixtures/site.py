@@ -2,6 +2,8 @@ from __future__ import absolute_import
 
 import functools
 import math
+
+from dateutil.relativedelta import relativedelta
 from datetime import datetime, timedelta
 
 import pytest
@@ -213,7 +215,7 @@ def _get_latest_translations(translations):
         locale = translation.locale.code
         latest_translations[resource] = latest_translations.get(resource, {})
         date, _translation = latest_translations[resource].get(
-            locale, (timezone.make_aware(datetime.min), None)
+            locale, (timezone.make_aware(datetime.now() - relativedelta(years=100)), None)
         )
         if translation.date > date:
             latest_translations[resource][locale] = (translation.date, translation)

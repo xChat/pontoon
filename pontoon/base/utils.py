@@ -9,6 +9,7 @@ import tempfile
 import time
 import zipfile
 
+from dateutil.relativedelta import relativedelta
 from datetime import datetime, timedelta
 
 from guardian.decorators import permission_required as guardian_permission_required
@@ -427,7 +428,7 @@ def latest_datetime(datetimes):
     if all(map(lambda d: d is None, datetimes)):
         return None
 
-    min_datetime = timezone.make_aware(datetime.min)
+    min_datetime = timezone.make_aware(datetime.now() - relativedelta(years=100))
     datetimes = map(lambda d: d or min_datetime, datetimes)
     return max(datetimes)
 

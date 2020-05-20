@@ -2,6 +2,7 @@ from __future__ import absolute_import
 
 import functools
 from collections import OrderedDict
+from dateutil.relativedelta import relativedelta
 from datetime import datetime
 
 import pytest
@@ -174,7 +175,7 @@ def _calculate_tags_latest(**kwargs):
         else:
             key = tag
         # get the current latest for this tag
-        _pk, _date = latest_dates.get(key, (None, timezone.make_aware(datetime.min)))
+        _pk, _date = latest_dates.get(key, (None, timezone.make_aware(datetime.now() - relativedelta(years=100))))
         if translation["date"] > _date:
             # set this translation if its newer than the current latest
             # for this tag
